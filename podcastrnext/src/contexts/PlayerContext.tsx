@@ -18,3 +18,4 @@ type PlayerContextData = {
 };
 
 export const PlayerContext = createContext({} as PlayerContextData);
+
