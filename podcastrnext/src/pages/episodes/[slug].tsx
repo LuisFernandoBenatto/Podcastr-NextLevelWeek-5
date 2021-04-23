@@ -28,6 +28,10 @@ type EpisodeProps = {
 export default function Episode({ episode }: EpisodeProps) {
   const router = useRouter();
 
+  if(router.isFallback) {
+    return <p>Carregando...</p>
+  }
+
   return (
     <div className={ styles.episode }>
       <div className={ styles.thumbnailContainer }>
@@ -62,10 +66,33 @@ export default function Episode({ episode }: EpisodeProps) {
   )
 }
 
+/**
+ * client (browser)  -   next.js (node.js)     -     server (back-end)
+ * fallback: true    -   fallback: 'blocking'  - 
+ */
+
 export const getStaticPaths: GetStaticPaths = async () => {
+  const { data } = await api.get('episodes', {
+    params: {
+      _limit: 2,
+      _sort: 'published_ar',
+      _order: 'desc'
+    }
+  });
+
+  const paths = data.map(episode => {
+    return {
+      params: {
+        slug: episode.id
+      }
+    }
+  })
   return {
-    paths: [],
+    paths,
+      // [{params: { slug: 'a-importancia-da-contribuicao-em-open-source'}]
     fallback: 'blocking',
+    // fallback: false, assim que apertamos em um link do site teremos o retorno de erro 404, pois o link não estão inicializados nos parametros
+    // fallback: true, faz com que os links sejem inicados pelo lado do client e não do servidor
   }
 }
 
